@@ -2,11 +2,12 @@
   "name": "nodejs-sam-bootstrap",
   "version": "1.0.0",
   "description": "Cloneable bootstrap for AWS SAM and NodeJS setup",
-  "repository": "https://github.com/healthbridgeltd/nodejs-sam-bootstrap/",
-  "author": "Zava",
+  "repository": "",
+  "author": "ahmed",
   "dependencies": {
-    "aws-sdk": "^2.677.0",
-    "source-map-support": "^0.5.19"
+    "aws-sdk": "^2.691.0",
+    "source-map-support": "^0.5.19",
+    "uuidv4": "^6.1.0"
   },
   "scripts": {
     "lint": "standard --env jest | standard-reporter --stylish",

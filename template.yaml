@@ -36,20 +36,80 @@ Conditions:
 
 Resources:
   #####  Lambda Functions #####
-  HelloWorldFunction:
+
+  BookUploadApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: book-upload-api
+      StageName: Prod
+      Cors:
+        AllowCredentials: "*"
+        AllowHeaders: "'content-type, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Accept-Language, Authorization, x-api-key'"
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowOrigin: "'*'"
+
+  UploadRequestFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: cmd/lambdas/hello-world/app.lambdaHandler
+      Handler: cmd/lambdas/upload-request/app.lambdaHandler
       CodeUri: src/
       Runtime: nodejs12.x
       Events:
         CatchAll:
           Type: Api
           Properties:
-            Path: /hello-world
-            Method: GET
+            Path: /upload-request
+            Method: POST
+            RestApiId: !Ref BookUploadApiGateway
+      Policies:
+        - S3CrudPolicy:
+            BucketName: books-example-bucket-2020
+
+  SaveBookDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: cmd/lambdas/save-book-data/app.lambdaHandler
+      CodeUri: src/
+      Runtime: nodejs12.x
+      Layers:
+        - arn:aws:lambda:eu-west-1:347599033421:layer:wkhtmltopdf:1
+      Environment:
+        Variables:
+          BooksDBTableName: books-db-table
+      Events:
+        FileUploadEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref BookStorageBucket
+            Events: s3:ObjectCreated:*
+      Policies:
+        - AWSLambdaExecute
+        - DynamoDBCrudPolicy:
+            TableName: books-db-table
+
+  BookStorageBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: books-example-bucket-2020
+      AccessControl: Private
+
+
+  BookeDbTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: books-db-table
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+
 
 Outputs:
   HelloWorldApi:
     Description: "API Gateway endpoint URL to print Hello, World!"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello-world/"
+    Value: !Sub "https://${BookUploadApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/upload-request/"
