@@ -1,16 +1,11 @@
-# NodeJS + AWS SAM bootstrap
+# Book Upload Example
 
-## How to use this repo
+Example Serverless project to allow users to upload books to an S3 bucket through a presigned URL, 
 
-Click on the green button that says "Use this template", then chose a name for your new repository.
-This will create a new repository using this one.
+Once a file is uploaded, a background job is triggered asynchronously to store the file name into a DynamoDB table
 
-![](how-to-use.gif)
+![](Diagram.png)
 
-
-## Contributing to this project
-
-[Check contributing guidelines](./contributing.md)
 
 ## Setup Instructions
 
